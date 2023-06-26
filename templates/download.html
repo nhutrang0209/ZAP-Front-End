@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flask Web Downloader</title>
+    <style>
+        #progress {
+            display: none;
+        }
+        .button {
+            background-color: red;
+        }
+    </style>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function getScanProgress() {
+            $.ajax({
+                url: "/progress",
+                type: "GET",
+                success: function(data) {
+                    var spiderProgress = data.spiderProgress;
+                    var activeScanProgress = data.activeScanProgress;
+                    $("#spiderProgress").text("Spider progress: " + spiderProgress + "%");
+                    $("#activeScanProgress").text("Active Scan progress: " + activeScanProgress + "%");
+                    if (spiderProgress < 100 || activeScanProgress < 100) {
+                        setTimeout(getScanProgress, 1000);
+                    }
+                }
+            });
+        }
+        $(document).ready(function() {
+            getScanProgress();
+        });
+        function showProgress(){
+            var prog = document.getElementById("progress");
+            prog.style.display = "block"
+        }
+    </script>
+    <script>
+        function submitForm() {
+            var button = document.getElementById("myButton");
+            button.disabled = true;
+            document.getElementById("myForm").submit();
+            showProgress();
+        }
+    </script>
+</head>
+<body>
+    <!--URL input-->
+    <h1>URL: </h1>
+    <input style = "width: 500px; height: 45px" type="text" id="myInput" name = "url" value={{url}} readonly>
+
+    <!--Download Generated HTML file-->
+    {% if status == "HTML generated" %}
+    <p>
+        Upload <a href="/download/{{ file_name }}">{{file_name}}</a> to your website<br>
+    </p>
+    {% endif %} 
+
+    <!--Verify URL permissions-->
+    <form method="POST" action="/verify">
+        <input style = "width: 500px" type="hidden" id="myInput" name = "file_url" value={{file_url}} readonly>
+        <input type="hidden" name="url" value={{url}}>
+        {% if status == "HTML generated" %} <button style="height: 50px" type="submit">Verify your permissions</button> {% endif %}
+    </form>
+    <br>
+    <p>{{ result }}</p>
+
+    <!--Scan by ZAP-->
+    {% if result =="URL hợp lệ để quét" %}
+        <form id = "myForm" method="POST" action="/start_scan">
+            <input type="hidden" name="url" value={{url}}>
+            <button class = "button" id="myButton" style="height: 45px" onclick="submitForm()">Start scaning URL</button><br><br>
+            <!--Progress-->
+            <div id = "progress">
+                <div id="spiderProgress"></div>
+                <div id="activeScanProgress"></div>
+            </div>
+        </form>
+    {% endif %}
+
+    
+
+    <!--View report-->
+    {% if status == "Completed" %}
+        <p>Scan completed</p>
+        <a href="/report" target="_blank">View full scan report</a>
+    {% endif %}
+
+</body>
+</html>
