@@ -24,6 +24,8 @@ def generate_html():
     url = request.form.get('url')
     file_name = generate_random_name() + '.html'
     generate_html_file(url, file_name)
+    scan_progress["spiderProgress"] = 0
+    scan_progress["activeScanProgress"] = 0
     domain = get_domain_from_url(url)
     print(domain)
     file_url = f'http://{domain}/{file_name}'
@@ -46,6 +48,8 @@ def download(file_name):
 @app.route('/verify', methods=['POST'])
 def verify():
     # domain = get_domain_from_url(url)
+    scan_progress["spiderProgress"] = 0
+    scan_progress["activeScanProgress"] = 0
     file_url = request.form.get('file_url')
     url = request.form.get('url')
     print(url)
@@ -66,8 +70,8 @@ def start_scan():
     url = request.form['url']
     print(url)
     status = "Scanning"
+    scan_progress["spiderProgress"] = 0
     scan_progress["activeScanProgress"] = 0
-    scan_progress['spiderProgress'] = 0
     start_spider(url)
     start_active(url)
     status = "Completed";

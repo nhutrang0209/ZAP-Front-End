@@ -3,14 +3,48 @@
 <head>
     <title>Flask Web Downloader</title>
     <style>
+        html {
+            font-family: calibri;
+        }
         #progress {
             display: none;
         }
         .button {
-            background-color: red;
+            padding: 15px 25px;
+            margin: 2px;
+            color: white;
+            background-color: rgb(186, 51, 118);
+            border: none;
+            font-size: 15px;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            border-radius: 8px;
         }
+        .button:hover {
+            background-color: rgb(124, 53, 64);
+        }
+        .noti {
+            border: 3px;
+            padding: 3px 5px;
+            margin: 3px;
+            background-color: rgb(159, 34, 34);
+            color: white;
+            border-radius: 4px;
+            font-weight: 400;
+        }
+        .loader {
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 5px;
+            height: 5px;
+            animation: spin 2s linear infinite;
+          }
+          
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
     </style>
-    <link rel="stylesheet" href="./style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         function getScanProgress() {
@@ -61,30 +95,59 @@
     <form method="POST" action="/verify">
         <input style = "width: 500px" type="hidden" id="myInput" name = "file_url" value={{file_url}} readonly>
         <input type="hidden" name="url" value={{url}}>
-        {% if status == "HTML generated" %} <button style="height: 50px" type="submit">Verify your permissions</button> {% endif %}
+        {% if status == "HTML generated" %} 
+            <button class="button" type="submit">Verify your permissions to this URL</button> 
+        {% endif %}
     </form>
     <br>
-    <p>{{ result }}</p>
 
     <!--Scan by ZAP-->
     {% if result =="URL hợp lệ để quét" %}
+        <p>
+            <span class = "noti">
+                Verification result: 
+            </span>
+
+            <span style = "font-family: calibri;">
+                Valid URL to scan
+            </span>
+        </p>
         <form id = "myForm" method="POST" action="/start_scan">
             <input type="hidden" name="url" value={{url}}>
-            <button class = "button" id="myButton" style="height: 45px" onclick="submitForm()">Start scaning URL</button><br><br>
+            <button class = "button" id="myButton" onclick="submitForm()">Start scaning URL</button><br><br>
+            
             <!--Progress-->
             <div id = "progress">
+                <div class="loader"></div>
+                <div style="font-weight: bold; color: red; font-size: 20px">Scanning</div>           
                 <div id="spiderProgress"></div>
                 <div id="activeScanProgress"></div>
             </div>
         </form>
-    {% endif %}
+    {% else %}
+        {% if  result =="URL không hợp lệ để quét"%}
+            <p>
+                <span class = "noti">
+                    Verification result: 
+                </span>
 
-    
+                <span style = "font-family: calibri;">
+                    Invalid URL to scan
+                </span>
+            </p>
+            <form action="/" method="GET">
+                <button class = "button" style = "height: 45px" type="submit">Scan new URL</button>
+            </form>
+        {% endif %}
+    {% endif %}
 
     <!--View report-->
     {% if status == "Completed" %}
-        <p>Scan completed</p>
-        <a href="/report" target="_blank">View full scan report</a>
+        <p style = "font-weight: bold; color: red; font-size: 20px">Scan completed! </p>
+        <a href="/report" target="_blank">View full scan report</a><br><br>
+        <form action="/" method="GET">
+            <button class = "button" style = "height: 45px" type="submit">Scan new URL</button>
+        </form>
     {% endif %}
 
 </body>

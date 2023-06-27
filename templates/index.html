@@ -3,11 +3,17 @@
 <head>
     <title>URL to HTML Generator</title>
     <style>
+        html {
+            font-family: calibri;
+        }
         .button {
+            padding: 15px 25px;
+            color: white;
             background-color: rgb(186, 51, 118);
             border: none;
             font-size: 15px;
             box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            border-radius: 8px;
         }
 
         .button:hover {
@@ -18,8 +24,8 @@
 <body>
     <h1>Input URL</h1>
     <form action="/generate_html" method="POST">
-        <input style="width: 500px; height: 40px" type="text" name="url" placeholder="Enter URL" required>
-        <button class = "button" style = "height: 46px" type="submit">Next</button>
+        <input style="width: 500px; height: 40px" type="text" :focus{} name="url" placeholder="Enter URL" required>
+        <button class = "button" type="submit">Next</button>
     </form>
 </body>
 </html>
