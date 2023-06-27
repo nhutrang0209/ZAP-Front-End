@@ -24,8 +24,6 @@ def generate_html():
     url = request.form.get('url')
     file_name = generate_random_name() + '.html'
     generate_html_file(url, file_name)
-    scan_progress["spiderProgress"] = 0
-    scan_progress["activeScanProgress"] = 0
     domain = get_domain_from_url(url)
     print(domain)
     file_url = f'http://{domain}/{file_name}'
@@ -47,31 +45,22 @@ def download(file_name):
     
 @app.route('/verify', methods=['POST'])
 def verify():
-    # domain = get_domain_from_url(url)
-    scan_progress["spiderProgress"] = 0
-    scan_progress["activeScanProgress"] = 0
     file_url = request.form.get('file_url')
     url = request.form.get('url')
-    print(url)
-    print(file_url)
     try:
         response = requests.get(file_url)
         if response.status_code == 200:
-            result = 'URL hợp lệ để quét'
-            
+            result = 'URL hợp lệ để quét'   
         else:
             result = 'URL không hợp lệ để quét'
     except requests.exceptions.RequestException as e:
-        result = 'Lỗi kết nối: ' + str(e)
+        result = 'Lỗi kết nối: '
     return render_template('download.html', result=result, file_url=file_url, url=url)
 
 @app.route('/start_scan', methods=['POST'])
 def start_scan():
     url = request.form['url']
-    print(url)
     status = "Scanning"
-    scan_progress["spiderProgress"] = 0
-    scan_progress["activeScanProgress"] = 0
     start_spider(url)
     start_active(url)
     status = "Completed";
@@ -82,15 +71,16 @@ def progress():
     global scan_progress
     return jsonify(scan_progress)
 
-def start_spider(url): #spider
+def start_spider(url):
     target = url
     apiKey = 'a44cr1eoi1jnsoleuspocs0mr7'
     zap = ZAPv2(apikey=apiKey)
     zap.core.new_session()
     scan_id = zap.spider.scan(target)
-    spider_progress(scan_id,target)  # Bắt đầu in quá trình quét    
+    spider_progress(scan_id,target)   
     
-def spider_progress(scan_id,target): #in ra quá trình Spider
+#Quá trình spider
+def spider_progress(scan_id,target):
     apiKey = 'a44cr1eoi1jnsoleuspocs0mr7'
     zap = ZAPv2(apikey=apiKey)
     global scan_progress
@@ -101,6 +91,7 @@ def spider_progress(scan_id,target): #in ra quá trình Spider
         time.sleep(1)
         spider_progress(scan_id,target)
 
+#Bắt đầu active scan
 def start_active(url):
         target = url
         apiKey = 'a44cr1eoi1jnsoleuspocs0mr7'
@@ -108,6 +99,8 @@ def start_active(url):
         scan_id = zap.ascan.scan(target)
         active_progress(scan_id,target) 
 
+
+#Quá trình active scan
 def active_progress(scan_id,target): #Quá trình active scan
         apiKey = 'a44cr1eoi1jnsoleuspocs0mr7'
         zap = ZAPv2(apikey=apiKey)
@@ -121,10 +114,8 @@ def active_progress(scan_id,target): #Quá trình active scan
         else:                      
             result = []
             result.append('Active Scan completed')
-            # hosts = ', '.join(zap.core.hosts)
-            # alerts = zap.core.alerts(baseurl=target)
-            # self.socketio.emit('scan_result', {'result': result, 'hosts': hosts, 'alerts': alerts}, namespace='/scan')
 
+#Tạo báo cáo
 @app.route('/report')
 def generate_report():
     # Tạo báo cáo HTML từ ZAP
@@ -148,14 +139,6 @@ def generate_report():
     # Lưu báo cáo vào file
     with open(report_path, 'w', encoding='utf-8') as f:
         f.write(report_html)
-    
-    # Lưu báo cáo vào một file tạm thời
-    # temp_file_path = 'report.html'
-    # with open(temp_file_path, 'w', encoding='utf-8') as f:
-    #     f.write(report_html)
-    
-    # # Trả về file báo cáo để tải xuống
-    # return send_file(temp_file_path, as_attachment=True)
     
     # Tạo response
     response = make_response(report_html)

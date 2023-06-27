@@ -125,7 +125,7 @@
             </div>
         </form>
     {% else %}
-        {% if  result =="URL không hợp lệ để quét"%}
+        {% if  result =="URL không hợp lệ để quét" or result=="Lỗi kết nối: "%}
             <p>
                 <span class = "noti">
                     Verification result: 
@@ -137,7 +137,7 @@
             </p>
             <form action="/" method="GET">
                 <button class = "button" style = "height: 45px" type="submit">Scan new URL</button>
-            </form>
+            </form>            
         {% endif %}
     {% endif %}
 
