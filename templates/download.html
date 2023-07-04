@@ -54,10 +54,14 @@
                 success: function(data) {
                     var spiderProgress = data.spiderProgress;
                     var activeScanProgress = data.activeScanProgress;
+                    if (activeScanProgress==100) activeScanProgress = spiderProgress = 0;
                     $("#spiderProgress").text("Spider progress: " + spiderProgress + "%");
                     $("#activeScanProgress").text("Active Scan progress: " + activeScanProgress + "%");
                     if (spiderProgress < 100 || activeScanProgress < 100) {
                         setTimeout(getScanProgress, 1000);
+                    }else{
+                        spiderProgress = 0;
+                        activeScanProgress = 0;
                     }
                 }
             });

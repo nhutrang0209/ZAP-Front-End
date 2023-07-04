@@ -61,6 +61,9 @@ def verify():
 def start_scan():
     url = request.form['url']
     status = "Scanning"
+    apiKey = 'a44cr1eoi1jnsoleuspocs0mr7'
+    zap = ZAPv2(apikey=apiKey)
+    zap.core.new_session()
     start_spider(url)
     start_active(url)
     status = "Completed";
